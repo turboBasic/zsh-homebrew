@@ -1,0 +1,28 @@
+#!/usr/bin/env zsh
+# shellcheck disable=all
+
+# Standard header of Zsh plugin function.
+# - https://zdharma-continuum.github.io/zinit/wiki/zsh-plugin-standard/#standard_recommended_options
+# - https://zdharma-continuum.github.io/zinit/wiki/zsh-plugin-standard/#standard_recommended_variables
+
+emulate -L zsh
+setopt \
+    extended_glob \
+    no_auto_pushd \
+    no_short_loops \
+    rc_quotes \
+    typeset_silent \
+    warn_create_global
+
+local MATCH REPLY
+integer MBEGIN MEND
+local -a match mbegin mend reply
+
+# End of standard header of Zsh plugin function
+
+
+
+if [[ -z $PLUGIN_ZSH_HOMEBREW[name] ]]; then
+    [[ ${PLUGIN_ZSH_HOMEBREW[dir]:t} == (#b)(?##)---(?##) ]] && PLUGIN_ZSH_HOMEBREW[name]=${match[2]}
+fi
+builtin echo ${PLUGIN_ZSH_HOMEBREW[name]}
