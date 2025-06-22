@@ -1,0 +1,9 @@
+# shellcheck disable=all
+
+# prepend paths to Homebrew's GNU utils documentation to MANPATH
+
+manpath=(
+    $HOMEBREW_PREFIX/opt/*/libexec/gnuman(-/N)
+    $HOMEBREW_PREFIX/opt/*/share/man(-/N)
+    $manpath
+)

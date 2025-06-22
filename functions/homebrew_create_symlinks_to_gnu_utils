@@ -1,0 +1,25 @@
+# shellcheck disable=all
+
+() {
+    local i man_paths symlinks
+
+    # install symlinks to Homebrew versions of utilities
+    [[ -d $HOME/.local/bin ]] || mkdir $HOME/.local/bin
+
+    symlinks=(
+        $HOMEBREW_PREFIX/opt/*/libexec/gnubin/*(-*N)
+        $HOMEBREW_PREFIX/opt/man-db/libexec/bin/*(-*N)
+        $HOMEBREW_PREFIX/opt/curl/bin/*(-*N)
+    )
+    for i in $symlinks; do
+        [[ -L $HOME/.local/bin/${i:t} ]] || ln -sfv $j $HOME/.local/bin/${i:t}
+    done
+
+    # create symlinks for autocompletion
+    symlinks=(
+        $HOMEBREW_PREFIX/opt/*/share/zsh/site-functions/_*(-.N)
+    )
+    for i in $symlinks; do
+        [[ -L ${ZINIT[COMPLETIONS_DIR]}/${i:t} ]] ||  ln -svf "$i" ${ZINIT[COMPLETIONS_DIR]}
+    done
+}

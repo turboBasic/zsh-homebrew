@@ -80,13 +80,13 @@ function homebrew_path_to_gnu_utils() {
 
 
     local homebrew_prefix=$(homebrew_prefix)
-    # only directories and symlinks to directories  
+    # only directories and symlinks to directories
     echo ${homebrew_prefix:+$homebrew_prefix/opt/coreutils/libexec/gnubin}(-N/)
 }
 
 function .homebrew_path_to_homebrew() {
     # Find path to Homebrew binary, empty if not found
-    
+
     typeset -aU homebrew=(
         $commands[brew]
         $HOMEBREW_PREFIX/bin/brew
@@ -96,4 +96,47 @@ function .homebrew_path_to_homebrew() {
     )
     reply=( ${^homebrew}(-*N) )  # only executable files, including symlinks to them
     echo ${(F)reply}
+}
+
+function homebrew_install() {
+    # Install Homebrew if missing
+
+    # Standard header of Zsh plugin function.
+    # - https://zdharma-continuum.github.io/zinit/wiki/zsh-plugin-standard/#standard_recommended_options
+    # - https://zdharma-continuum.github.io/zinit/wiki/zsh-plugin-standard/#standard_recommended_variables
+
+    emulate -L zsh
+    setopt \
+        extended_glob \
+        no_auto_pushd \
+        no_short_loops \
+        rc_quotes \
+        typeset_silent \
+        warn_create_global
+
+    local MATCH REPLY
+    integer MBEGIN MEND
+    local -a match mbegin mend reply
+
+    # End of standard header of Zsh plugin function
+
+
+    local path_to_homebrew=$(.homebrew_path_to_homebrew)
+    if [[ ! -x "$path_to_homebrew" ]]; then
+        NONINTERACTIVE=1 /bin/bash -c "$(
+            curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+        )" 1>&2
+    fi
+
+    echo "${path_to_homebrew:-$(.homebrew_path_to_homebrew)}"
+}
+
+function homebrew_shell_env() {
+    # Patch startup code of Homebrew. Just prepend Homebrew directories instead of generating
+    # static paths
+
+    local homebrew_prefix=$(homebrew_prefix)
+    "$(homebrew_install)" shellenv zsh | sed -r '/^(export )?PATH=/ d'
+    printf 'path=( %s %s $path )\n' "$homebrew_prefix/bin" "$homebrew_prefix/sbin"
+    printf '%s\n' "$(< functions/homebrew_prepend_to_manpath)"
 }
