@@ -1,0 +1,31 @@
+# shellcheck disable=all
+
+# Find Homebrew prefix without executing Homebrew, empty if not found
+
+# Standard header of Zsh plugin function.
+# - https://zdharma-continuum.github.io/zinit/wiki/zsh-plugin-standard/#standard_recommended_options
+# - https://zdharma-continuum.github.io/zinit/wiki/zsh-plugin-standard/#standard_recommended_variables
+
+emulate -L zsh
+setopt \
+    extended_glob \
+    no_auto_pushd \
+    no_short_loops \
+    rc_quotes \
+    typeset_silent \
+    warn_create_global
+
+local MATCH REPLY
+integer MBEGIN MEND
+local -a match mbegin mend reply
+
+# End of standard header of Zsh plugin function
+
+
+if [[ -n "$HOMEBREW_PREFIX" ]]; then
+    echo $HOMEBREW_PREFIX
+elif (( $+commands[brew] )); then
+    echo ${commands[brew]:h:h}  # /opt/homebrew/bin/brew → /opt/homebrew
+else
+    echo ${$(.homebrew_path_to_homebrew):h:h}
+fi
