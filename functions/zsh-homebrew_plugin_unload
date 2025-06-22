@@ -1,0 +1,8 @@
+# shellcheck disable=all
+
+emulate -L zsh
+
+local x
+for x in ${=PLUGIN_ZSH_HOMEBREW[functions]}; do
+    (( ${+functions[$x]} )) && unfunction $x
+done
